@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:latest
+    container_name: djdb
+    environment:
+      MYSQL_ROOT_PASSWORD: 123
+      MYSQL_USER: djuser
+      MYSQL_PASSWORD: 123
+      MYSQL_DATABASE: djdb
+    volumes:
+      - /home/rohith/djangodb/:/var/lib/mysql
+    networks:
+      - djangonetwork
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123"]
+
+
+  django:
+    image: djangoproj
+    container_name: django
+
+    ports:
+      - "80:5000"
+    volumes:
+      - /home/rohith/django/settings.py:/app/bankproject/settings.py
+    networks:
+      - djangonetwork
+    depends_on:
+        db:
+          condition: service_healthy
+
+
+networks:
+  djangonetwork:
+    driver: bridge
+
